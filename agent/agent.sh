@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -eu
 source config.sh
 
 # mainブランチ同期
@@ -23,38 +23,38 @@ while true; do
         break
     fi
 
+    issue_summary=$(python get_issue_summary.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --issue_number $issue_number)
     # 子ブランチ作成・チェックアウト
-    child_branch=feature-$issue_number
+    child_branch=feature-$issue_number$issue_summary
     git checkout -b $child_branch
 
-    # 実験前のbest cvスコアを取得
-    # prev_best_score=$(python get_current_best_score.py --score_name $WANDB_SCORE_NAME --direction $SCORE_DIRECTION)
-
     # 実験内容から新しいexpコードを生成
-    python generate_new_exp_code.py --exp_code_path $EXP_CODE_PATH --action_item $action_item --llm_model $LLM_MODEL
+    echo python generate_new_exp_code.py --exp_code_path $EXP_CODE_PATH --action_item "$action_item" --llm_model $LLM_MODEL
+    if [ $? -ne 0 ]; then
+        echo "Failed to generate new exp code" 1>&2
+        break
+    fi
 
     # expコードの実行
+    # Check EXP_CODE_PATH is python file or not
     python $EXP_CODE_PATH
+    if [ $? -ne 0 ]; then
+        echo "Failed to run exp code" 1>&2
+        break
+    fi
 
     # wandbのNotesに実験内容を書き込み
     # python write_wandb_latest_run_notes.py --notes $action_item
 
-    # 実験後のbest cvスコアを取得
-    # new_best_score=$(python get_current_best_score.py --score_name $WANDB_SCORE_NAME --direction $SCORE_DIRECTION)
     break
 
     # 変更点をgithubに登録
     git add -u
-    git commit -m "$action_item #$issue_number"
-    git push -u origin $child_branch
-    python close_github_issue.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --issue_number $issue_number
+    # make commit message
+    commit_message=$(python make_commit_message.py --action_item "$action_item" --diff $(git diff $child_branch main))
+    git commit -m "$commit_message"
+    # git push -u origin $child_branch
 
-    git checkout $parent_branch
-
-    # cvを更新したら子ブランチの内容を親ブランチに反映
-    result=$(python check_score_improved.py --prev $prev_best_score --new $new_best_score --direction $SCORE_DIRECTION)
-    if [ "$result" -eq 1 ]; then
-        git merge $child_branch
-        git push origin $parent_branch
-    fi
+    # PRを作成
+    # python create_pr.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --head $child_branch --base main
 done
