@@ -34,9 +34,9 @@ with open(exp_code_path, 'r') as file:
 prompt = PromptTemplate(template=template, input_variables=["code", "action_item"])
 prompt_text = prompt.format(code=org_code, action_item=action_item)
 print(prompt_text)
-# llm = OpenAI(model_name=llm_model)
-# new_code = llm(prompt_text) 
-exit()
+llm = OpenAI(model_name=llm_model)
+new_code = llm(prompt_text)
+print("####", new_code)
 
 with open(exp_code_path, "w") as file:
     file.write(new_code)

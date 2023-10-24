@@ -27,9 +27,12 @@ while true; do
     # 子ブランチ作成・チェックアウト
     child_branch=feature-$issue_number$issue_summary
     git checkout -b $child_branch
+    if [ $? -ne 0 ]; then
+        git checkout $child_branch
+    fi
 
     # 実験内容から新しいexpコードを生成
-    echo python generate_new_exp_code.py --exp_code_path $EXP_CODE_PATH --action_item "$action_item" --llm_model $LLM_MODEL
+    python generate_new_exp_code.py --exp_code_path $EXP_CODE_PATH --action_item "$action_item" --llm_model $LLM_MODEL
     if [ $? -ne 0 ]; then
         echo "Failed to generate new exp code" 1>&2
         break
@@ -46,15 +49,16 @@ while true; do
     # wandbのNotesに実験内容を書き込み
     # python write_wandb_latest_run_notes.py --notes $action_item
 
-    break
-
     # 変更点をgithubに登録
     git add -u
     # make commit message
-    commit_message=$(python make_commit_message.py --action_item "$action_item" --diff $(git diff $child_branch main))
+    commit_message=$(python make_commit_message.py --action_item "$action_item" --diff "$(git diff main $EXP_CODE_PATH)" --llm_model $LLM_MODEL)
     git commit -m "$commit_message"
     # git push -u origin $child_branch
 
     # PRを作成
     # python create_pr.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --head $child_branch --base main
+
+    git checkout main
+    break
 done
