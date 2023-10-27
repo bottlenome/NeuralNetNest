@@ -2,7 +2,7 @@ import argparse
 import os
 import requests
 
-def pr_github(owner, repo, title, issue_num, head, description="", base="main")
+def pr_github(owner, repo, title, issue_num, head, description="", base="main"):
     """
     git hubのpull requestを作成する
     """
