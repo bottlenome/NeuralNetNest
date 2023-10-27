@@ -54,10 +54,10 @@ while true; do
     # make commit message
     commit_message=$(python make_commit_message.py --action_item "$action_item" --diff "$(git diff main $EXP_CODE_PATH)" --llm_model $LLM_MODEL)
     git commit -m "$commit_message"
-    # git push -u origin $child_branch
+    git push -u origin $child_branch
 
     # PRを作成
-    # python create_pr.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --head $child_branch --base main
+    python create_pr.py --owner $GITHUB_OWNNER --repo $GITHUB_REPO --title "for issue $issue_number" --issue_num $issue_number --head $child_branch --base main
 
     git checkout main
     break

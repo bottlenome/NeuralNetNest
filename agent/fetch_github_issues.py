@@ -17,6 +17,6 @@ def fetch_github_issues(owner, repo):
         "Accept": "application/vnd.github.v3+json", 
         "Authorization": "token " + token
     }
-    
+
     issues = requests.get(url, headers=headers).json()
     return pd.DataFrame(issues)
