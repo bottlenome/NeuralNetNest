@@ -4,10 +4,6 @@ source config.sh
 # mainブランチ同期
 git checkout main
 git pull origin main
-# agent用の親ブランチ作成・チェックアウト
-# parent_branch=agent$(date +"%Y%m%d%H%M%S")
-# git checkout -b $parent_branch
-# git push -u origin $parent_branch
 
 # 実験ループ
 while true; do
@@ -45,9 +41,6 @@ while true; do
         echo "Failed to run exp code" 1>&2
         break
     fi
-
-    # wandbのNotesに実験内容を書き込み
-    # python write_wandb_latest_run_notes.py --notes $action_item
 
     # 変更点をgithubに登録
     git add -u
