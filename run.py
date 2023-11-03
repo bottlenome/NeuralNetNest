@@ -26,9 +26,9 @@ if __name__ == "__main__":
     players = [Player(name) for name in player_names]
     turn = 0
     start_time = time.time()
-    while time.time() - start_time < 5:
+    while True:
         score = players[turn].play_turn()
-        if score == 6 or players[turn].get_score() >= 30:
+        if time.time() - start_time >= 5 or score == 6 or players[turn].get_score() >= 30:
             print(f"{players[turn].name} wins with a score of {players[turn].get_score()}")
             break
         turn = (turn + 1) % len(players) # cycle between players
