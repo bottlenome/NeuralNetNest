@@ -1,4 +1,5 @@
 import random
+import time
 
 class Dice:
      def throw(self):
@@ -24,7 +25,8 @@ if __name__ == "__main__":
     player_names = ["Player 1", "Player 2"]
     players = [Player(name) for name in player_names]
     turn = 0
-    while True:
+    start_time = time.time()
+    while time.time() - start_time < 5:
         score = players[turn].play_turn()
         if score == 6 or players[turn].get_score() >= 30:
             print(f"{players[turn].name} wins with a score of {players[turn].get_score()}")
