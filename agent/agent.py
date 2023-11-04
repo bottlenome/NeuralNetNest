@@ -30,6 +30,8 @@ while True:
 
     issue_summary = run_command(f"python get_issue_summary.py --owner {GITHUB_OWNNER} --repo {GITHUB_REPO} --issue_number {issue_number}", capture_output=True)
     child_branch = f"feature-{issue_number}{issue_summary}"
+
+    EXP_CODE_PATH = run_command(f"python get_exp_code_path.py --issue_summary '{issue_summary}' --llm_model {LLM_MODEL}", capture_output=True)
     
     # 子ブランチ作成・チェックアウト
     try:
